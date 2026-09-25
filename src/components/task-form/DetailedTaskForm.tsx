@@ -1,10 +1,10 @@
 import AddRounded from '@mui/icons-material/AddRounded';
 import { Button, Divider, Grid, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { useState, type FormEvent } from 'react';
-import { WEEKDAYS } from '../../constants/taskOptions';
+import { WEEKDAYS, WEEKDAYS_BY_INDEX } from '../../constants/taskOptions';
 import { useTodos } from '../../hooks/useTodos';
 import type { Category, Recurrence, TaskType, TodoDraft, Weekday } from '../../types/todo';
-import { todayKey } from '../../utils/date';
+import { parseLocal, todayKey } from '../../utils/date';
 import { CategorySelect, DateField, TimeField, TypeSelect } from './fields';
 
 const createEmptyDraft = (): TodoDraft => ({
@@ -17,7 +17,7 @@ const createEmptyDraft = (): TodoDraft => ({
   endDate: todayKey(),
   endTime: '',
   recurrence: 'none',
-  recurrenceDays: ['mon'],
+  recurrenceDays: [],
 });
 
 export function DetailedTaskForm() {
@@ -37,8 +37,20 @@ export function DetailedTaskForm() {
     if (!canSubmit) return;
     addTodo({ ...draft, title: draft.title.trim(), description: draft.description.trim() });
     // Keep type/category/dates — handy when entering several similar tasks.
-    setDraft((d) => ({ ...d, title: '', description: '', recurrence: 'none', recurrenceDays: ['mon'] }));
+    setDraft((d) => ({ ...d, title: '', description: '', recurrence: 'none', recurrenceDays: [] }));
   };
+
+  // Switching to weekly pre-selects the start date's weekday, so the
+  // default always matches the day the user already picked.
+  const changeRecurrence = (recurrence: Recurrence) =>
+    setDraft((d) => ({
+      ...d,
+      recurrence,
+      recurrenceDays:
+        recurrence === 'weekly' && d.recurrenceDays.length === 0
+          ? [WEEKDAYS_BY_INDEX[parseLocal(d.startDate).getDay()]]
+          : d.recurrenceDays,
+    }));
 
   return (
     <Grid component="form" container spacing={1.5} onSubmit={handleSubmit}>
@@ -95,7 +107,7 @@ export function DetailedTaskForm() {
             size="small"
             color="primary"
             value={draft.recurrence}
-            onChange={(_, value: Recurrence | null) => value && set('recurrence', value)}
+            onChange={(_, value: Recurrence | null) => value && changeRecurrence(value)}
           >
             <ToggleButton value="none">None</ToggleButton>
             <ToggleButton value="daily">Daily</ToggleButton>
