@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useReducer, type ReactNode } from 'react';
 import type { TodoDraft } from '../types/todo';
-import { createSampleTodos } from '../data/sampleTodos';
 import { expandDraft } from '../utils/recurrence';
 import { TodosContext, type TodosContextValue } from './TodosContext';
 import { loadTodos, saveTodos } from './todoStorage';
 import { todosReducer } from './todosReducer';
 
-const initTodos = () => loadTodos() ?? createSampleTodos();
+// The app starts empty — no demo/sample tasks are seeded. Existing browsers
+// that still have old sample data in storage can clear it via "Clear all tasks".
+const initTodos = () => loadTodos() ?? [];
 
 export function TodosProvider({ children }: { children: ReactNode }) {
   // Lazy initialiser: storage is read once, not on every render.
@@ -22,6 +23,7 @@ export function TodosProvider({ children }: { children: ReactNode }) {
       toggleTodo: (id: string) => dispatch({ type: 'toggled', id }),
       setCompleted: (id: string, completed: boolean) => dispatch({ type: 'completedSet', id, completed }),
       deleteTodo: (id: string) => dispatch({ type: 'deleted', id }),
+      clearAllTodos: () => dispatch({ type: 'cleared' }),
     }),
     [],
   );

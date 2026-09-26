@@ -10,9 +10,15 @@ export const RECURRENCE_HORIZON_DAYS = { daily: 30, weekly: 84 } as const;
  * A recurring task becomes one todo per occurrence (sharing a `seriesId`)
  * so each day can be completed independently.
  */
-export function expandDraft(draft: TodoDraft, createId: () => string = () => crypto.randomUUID()): Todo[] {
+export function expandDraft(
+  draft: TodoDraft,
+  createId: () => string = () => crypto.randomUUID(),
+  now: Date = new Date(),
+): Todo[] {
+  const createdAt = toDateKey(now);
+
   if (draft.recurrence === 'none') {
-    return [{ ...draft, id: createId(), recurrenceDays: [], completed: false }];
+    return [{ ...draft, id: createId(), recurrenceDays: [], completed: false, createdAt }];
   }
 
   const seriesId = createId();
@@ -34,6 +40,7 @@ export function expandDraft(draft: TodoDraft, createId: () => string = () => cry
       endDate: dateKey,
       recurrenceDays: draft.recurrence === 'weekly' ? draft.recurrenceDays : [],
       completed: false,
+      createdAt,
     });
   }
   return occurrences;

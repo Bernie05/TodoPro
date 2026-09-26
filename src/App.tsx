@@ -1,6 +1,7 @@
 import { Container, Paper, Stack, Tab, Tabs } from '@mui/material';
 import { useState } from 'react';
 import { AppHeader } from './components/AppHeader';
+import { Dashboard } from './components/Dashboard';
 import { ReminderDialog } from './components/ReminderDialog';
 import { TaskComposer } from './components/task-form/TaskComposer';
 import { UpcomingTable } from './components/UpcomingTable';
@@ -27,6 +28,7 @@ export default function App() {
     <Container maxWidth="md" sx={{ pb: 6 }}>
       <Stack spacing={4}>
         <AppHeader />
+        <Dashboard now={now} />
         <TaskComposer />
 
         <Paper component="section" sx={{ p: 2 }}>

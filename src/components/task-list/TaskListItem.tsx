@@ -2,7 +2,9 @@ import DeleteOutlineRounded from '@mui/icons-material/DeleteOutlineRounded';
 import EventRounded from '@mui/icons-material/EventRounded';
 import WhatshotRounded from '@mui/icons-material/WhatshotRounded';
 import { Checkbox, IconButton, Paper, Stack, Typography } from '@mui/material';
-import { memo } from 'react';
+import { memo, useState } from 'react';
+import { ConfirmDialog } from '../ConfirmDialog';
+import { DAY_END_TIME, DAY_START_TIME } from '../../constants/time';
 import type { TaskStatus, Todo } from '../../types/todo';
 import { formatDateTime } from '../../utils/date';
 import { CategoryChip, RecurrenceChip, TypeChip } from './TaskChips';
@@ -26,6 +28,7 @@ const statusBorder: Record<TaskStatus, string> = {
 /** `memo` + stable callbacks: toggling one task doesn't re-render the others. */
 export const TaskListItem = memo(function TaskListItem({ todo, status, compact, onToggle, onDelete }: Props) {
   const done = status === 'done';
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
     <Paper
@@ -85,15 +88,27 @@ export const TaskListItem = memo(function TaskListItem({ todo, status, compact, 
           )}
           <Typography variant="caption">
             {compact
-              ? `${todo.startTime || '00:00'} – ${todo.endTime || '23:59'}`
+              ? `${todo.startTime || DAY_START_TIME} – ${todo.endTime || DAY_END_TIME}`
               : `${formatDateTime(todo.startDate, todo.startTime)} → ${formatDateTime(todo.endDate, todo.endTime)}`}
           </Typography>
         </Stack>
       </Stack>
 
-      <IconButton size="small" color="error" aria-label={`Delete "${todo.title}"`} onClick={() => onDelete(todo.id)}>
+      <IconButton size="small" color="error" aria-label={`Delete "${todo.title}"`} onClick={() => setConfirmOpen(true)}>
         <DeleteOutlineRounded fontSize="small" />
       </IconButton>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete task?"
+        description={`"${todo.title}" will be permanently deleted.`}
+        confirmLabel="Delete"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          setConfirmOpen(false);
+          onDelete(todo.id);
+        }}
+      />
     </Paper>
   );
 });

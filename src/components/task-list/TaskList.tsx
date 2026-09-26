@@ -1,5 +1,6 @@
 import { Stack, Typography } from '@mui/material';
 import type { ReactNode } from 'react';
+import { TASK_LIST_MAX_HEIGHT } from '../../constants/ui';
 import { useTodos } from '../../hooks/useTodos';
 import type { Todo } from '../../types/todo';
 import { getTaskStatus } from '../../utils/taskStatus';
@@ -13,7 +14,7 @@ interface Props {
   maxHeight?: number;
 }
 
-export function TaskList({ todos, now, compact, empty, maxHeight = 420 }: Props) {
+export function TaskList({ todos, now, compact, empty, maxHeight = TASK_LIST_MAX_HEIGHT }: Props) {
   const { toggleTodo, deleteTodo } = useTodos();
 
   if (todos.length === 0) {
